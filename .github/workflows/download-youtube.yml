@@ -40,10 +40,9 @@ jobs:
       - name: Commit video to repository
         run: |
           if (Test-Path video.mp4) {
-            git add video.mp4
             git config user.name "github-actions"
             git config user.email "github-actions@github.com"
-            # Only commit if changes exist
+            git add video.mp4
             git diff --cached --quiet || git commit -m "Add downloaded YouTube video via Git LFS"
             git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }} HEAD:main
           } else {

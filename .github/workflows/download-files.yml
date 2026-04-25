@@ -1,0 +1,17 @@
+name: Download Files on Windows
+
+on:
+  workflow_dispatch:  # Manual trigger
+
+jobs:
+  download:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Download a file
+      run: |
+        Invoke-WebRequest -Uri "https://example.com/file.zip" -OutFile "file.zip"
+      shell: pwsh

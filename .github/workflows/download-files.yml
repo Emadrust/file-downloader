@@ -13,5 +13,5 @@ jobs:
 
     - name: Download a file
       run: |
-        Invoke-WebRequest -Uri "https://example.com/file.zip" -OutFile "file.zip"
+        Invoke-WebRequest -Uri "https://upload.wikimedia.org/wikipedia/commons/4/47/PNG_transparency_demonstration_1.png" -OutFile "PNG_transparency_demonstration_1.png"
       shell: pwsh

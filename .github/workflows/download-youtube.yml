@@ -50,8 +50,9 @@ jobs:
             --cookies cookies.txt \
             --no-playlist \
             --js-runtimes node \
-            -f "bv*[height<=720]+ba/b[height<=720]" \
-            -o "videos/video.%(ext)s" \
+            --remote-components ejs:github \
+            -f "bv*[height<=720]+ba/b[height<=720]/b[height<=720]" \
+            -o "videos/%(title)s.%(ext)s" \
             "${{ inputs.youtube_url }}"
 
       # Track video folder with Git LFS

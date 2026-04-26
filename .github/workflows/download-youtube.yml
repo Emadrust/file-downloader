@@ -26,6 +26,12 @@ jobs:
           sudo apt-get install git-lfs -y
           git lfs install
 
+      # Install Node.js
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
       # Install yt-dlp
       - name: Install yt-dlp
         run: |
@@ -38,6 +44,7 @@ jobs:
           mkdir -p videos
           yt-dlp \
             --no-playlist \
+            --js-runtimes node \
             -f "bv*[height<=720]+ba/b[height<=720]" \
             -o "videos/video.%(ext)s" \
             "${{ inputs.youtube_url }}"

@@ -16,10 +16,14 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Checkout repo and initialize LFS
+      # Checkout repo
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          lfs: true
 
+      # Install Git LFS
       - name: Install Git LFS
         run: |
           sudo apt-get update
@@ -40,7 +44,10 @@ jobs:
 
       # Add cookies
       - name: Add cookies
-        run: echo "${{ secrets.YOUTUBE_COOKIES }}" > cookies.txt
+        run: |
+          cat <<EOF > cookies.txt
+          ${{ secrets.YOUTUBE_COOKIES }}
+          EOF
 
       # Download video
       - name: Download YouTube video
@@ -55,18 +62,30 @@ jobs:
             -o "videos/%(title)s.%(ext)s" \
             "${{ inputs.youtube_url }}"
 
-      # Track video folder with Git LFS
-      - name: Track videos with Git LFS
-        run: |
-          git lfs track "videos/*"
-          git add .gitattributes
-
-      # Commit and push video
+      # Commit and push based on file size
       - name: Commit and push video
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
 
-          git add videos/
-          git commit -m "Add downloaded YouTube video via Git LFS" || echo "No changes to commit"
-          git push
+          # Loop through downloaded videos
+          for f in videos/*; do
+            size=$(stat -c%s "$f")  # Linux/macOS. Use PowerShell for Windows
+
+            if [ $size -lt 104857600 ]; then
+              echo "$f is <100 MB → commit normally"
+              git add "$f"
+            else
+              echo "$f is >=100 MB → track with LFS"
+              git lfs track "$f"
+              git add "$f" .gitattributes
+            fi
+          done
+
+          # Commit only if there are changes
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Add downloaded YouTube videos"
+            git push
+          fi

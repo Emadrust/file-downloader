@@ -70,7 +70,7 @@ jobs:
 
           # Loop through downloaded videos
           for f in videos/*; do
-            size=$(stat -c%s "$f")  # Linux/macOS. Use PowerShell for Windows
+            size=$(stat -c%s "$f")  # Linux/macOS
 
             if [ $size -lt 104857600 ]; then
               echo "$f is <100 MB → commit normally"
@@ -82,10 +82,15 @@ jobs:
             fi
           done
 
-          # Commit only if there are changes
+          # Commit if there are changes
           if git diff --cached --quiet; then
             echo "No changes to commit"
           else
             git commit -m "Add downloaded YouTube videos"
-            git push
+
+            # Pull remote changes first to avoid non-fast-forward errors
+            git pull --rebase origin main
+
+            # Push the commit
+            git push origin main
           fi
